@@ -25,6 +25,7 @@ def save_webpage_html(response: BeautifulSoup, website_name: str) -> str:
 
     return webpage_html
 
+
 def get_jobs(response: BeautifulSoup) -> None:
     """
     Extract company name and title for each job listed on the Elemental webpage
@@ -36,10 +37,16 @@ def get_jobs(response: BeautifulSoup) -> None:
     Returns:
         None
     """
-    jobs_html = response.find_all('div',attrs={"data-testid","job-list-item"})
+
+    # It's unclear if this class name is actually constant, it might be some kind UID based on date or version. 
+    # Worth investigating and updating to make this more stable
+
+    jobs_html = response.find_all(
+        'div', attrs={"class", "sc-beqWaB gupdsY job-card"})
 
     for job in jobs_html:
         print(job)
+
 
 def new_execution() -> BeautifulSoup:
     """
@@ -50,18 +57,21 @@ def new_execution() -> BeautifulSoup:
 
     return webpage_content
 
+
 def testing(opts: dict) -> BeautifulSoup:
     """
     Used by main method when we want to test an existing HTML file or generate a new one and test
     """
     if opts['new_file'] == 'Y':
-        r = requests.get('https://jobs.elementalexcelerator.com/jobs', timeout=3)
+        r = requests.get(
+            'https://jobs.elementalexcelerator.com/jobs', timeout=3)
         soup = save_webpage_html(r, 'elemental')
 
-    with open(f'{opts["file_name"]}.html', encoding = 'utf-8') as wp:
-        soup =  BeautifulSoup(wp, 'html.parser')
+    with open(f'{opts["file_name"]}.html', encoding='utf-8') as wp:
+        soup = BeautifulSoup(wp, 'html.parser')
 
     return soup
+
 
 def main():
     """
@@ -69,12 +79,11 @@ def main():
     """
     opts = {
         'new_file': 'N',
-        'file_name': 'elemental' 
+        'file_name': 'elemental'
     }
 
-    #webpage_content = new_execution()
+    # webpage_content = new_execution()
     webpage_content = testing(opts)
-
     get_jobs(webpage_content)
 
 
