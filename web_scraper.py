@@ -26,26 +26,61 @@ def save_webpage_html(response: BeautifulSoup, website_name: str) -> str:
     return webpage_html
 
 
-def get_jobs(response: BeautifulSoup) -> None:
+def extract_job_property(job: BeautifulSoup, attr: str) -> str:
+    """
+    Uses BeautifulSoup library to extract each relevant property for a job. Different flows 
+    are necessary for different properties
+
+    Inputs:
+        job: A single job from a group of jobs stored in a BeautifulSoup.element.tag object
+        property: The name of the property to be passed into the .find() method
+    Return:
+        property_value: Corresponding value for the target property as a string
+    """
+
+    if attr != 'title':
+        try:
+            property_value = job.find(itemprop=attr)['content']
+        except TypeError:
+            property_value = None
+    else:
+        try:
+            property_value = job.find(
+                itemprop=attr).contents[0].replace('\n', '').strip()
+        except TypeError:
+            property_value = None
+
+    return property_value
+
+
+def get_jobs(response: BeautifulSoup) -> list[dict]:
     """
     Extract company name and title for each job listed on the Elemental webpage
 
     Inputs:
         response: BeautifulSoup object that has webpage content
-    Outputs:
-        jobs: Dictionary that contains jobs and target attributes
     Returns:
-        None
+        database: List of dicts, each entry is a different job
     """
 
-    # It's unclear if this class name is actually constant, it might be some kind UID based on date or version. 
-    # Worth investigating and updating to make this more stable
+    # It's unclear if this class name is actually constant, it might be some kind UID based on date
+    # or version. Worth investigating and updating to make this more stable
 
-    jobs_html = response.find_all(
+    jobs = response.find_all(
         'div', attrs={"class", "sc-beqWaB gupdsY job-card"})
 
-    for job in jobs_html:
-        print(job)
+    database = []
+
+    for job in jobs:
+        job_info = {
+            'company': extract_job_property(job, 'name'),
+            'location': extract_job_property(job, 'address'),
+            'position': extract_job_property(job, 'title')
+        }
+
+        database.append(job_info)
+
+    return database
 
 
 def new_execution() -> BeautifulSoup:
@@ -84,7 +119,9 @@ def main():
 
     # webpage_content = new_execution()
     webpage_content = testing(opts)
-    get_jobs(webpage_content)
+    jobs = get_jobs(webpage_content)
+
+    print(jobs)
 
 
 if __name__ == "__main__":
