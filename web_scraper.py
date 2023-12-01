@@ -15,7 +15,6 @@ def save_webpage_html(response: BeautifulSoup, website_name: str) -> str:
     Outputs:
         file: File saved to local directory titled f"{website_name}.html"
 
-    TODO: Update docstring
     """
 
     webpage_html = response.prettify()
