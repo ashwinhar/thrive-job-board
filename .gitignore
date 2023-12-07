@@ -1,4 +1,16 @@
+
+### Folders ###
+/.ipynb_checkpoints/*
+/airflow/*
+/.vscode/
+/__pycache__/
+/logs/
+
+### File Types ###
 *.html
 *.ipynb
 
-/.ipynb_checkpoints/*
+### Specific Files ###
+/airflow.db
+/airflow.cfg
+/webserver_config.py
