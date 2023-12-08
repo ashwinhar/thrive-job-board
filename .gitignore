@@ -9,6 +9,7 @@
 ### File Types ###
 *.html
 *.ipynb
+*.pyc
 
 ### Specific Files ###
 /airflow.db

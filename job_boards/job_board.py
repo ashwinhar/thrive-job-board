@@ -42,17 +42,19 @@ class JobBoard(ABC):
     # Abstract Method Definitions
 
     @abstractmethod
-    def get_jobs() -> list[dict]:
+    def get_jobs(self) -> list[dict]:
         """Returns jobs defined in a certain structure"""
 
     # Concrete Method Definitions
 
-    def get_website_data(self) -> BeautifulSoup:
+    def get_website_data(self) -> str:
         """Extract website HTML using BeautifulSoup and self.website property"""
 
         r = requests.get(self.website, timeout=3)
+        soup = BeautifulSoup(r.content, 'html.parser')
+        soup = soup.prettify()
 
-        return r.prettify()
+        return soup
 
     def name_to_snake(self) -> str:
         """Returns JobBoard property self.name in snake case"""
@@ -63,12 +65,14 @@ class JobBoard(ABC):
         """Save HTML to a file within a folder for each job board"""
 
         webpage_html = self.get_website_data()
+        target_dir = f'./data/{self.name_to_snake()}/'
 
         # Each job board should have its own directory within the "data" directory
-        if not os.path.exists(f'/data/{self.name_to_snake()}/'):
-            os.mkdir(f'/data/{self.name_to_snake()}/')
+        if not os.path.exists(target_dir):
+            os.mkdir(target_dir)
 
-        with open(f'{self.name_to_snake()}_{datetime.now().strftime("%Y%m%d")}.html', 'w', encoding='utf8') as html_file:
+        with open(f'{target_dir}{self.name_to_snake()}_{datetime.now().strftime("%Y%m%d")}.html',
+                  'w', encoding='utf8') as html_file:
             html_file.write(webpage_html)
 
     def get_html_from_file(self, date: str) -> BeautifulSoup:
@@ -82,8 +86,8 @@ class JobBoard(ABC):
         Elemental.get_html_from_file("20231201")
         """
 
-        with open(f'/data/{self.name_to_snake()}/{self.name_to_snake()}_{date}.html', encoding='utf-8') as wp:
+        with open(f'./data/{self.name_to_snake()}/{self.name_to_snake()}_{date}.html',
+                  encoding='utf-8') as wp:
             soup = BeautifulSoup(wp, 'html.parser')
 
         return soup
-
