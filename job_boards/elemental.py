@@ -1,6 +1,7 @@
 """Instance of Job Board class for Elemental Excelerator"""
 
 from bs4 import BeautifulSoup
+from airflow.decorators import task
 from .job_board import JobBoard
 
 
@@ -53,6 +54,7 @@ class Elemental(JobBoard):
 
         return property_value  # type: ignore
 
+    @task
     def extract_jobs(self, response: BeautifulSoup) -> list[dict]:
         """
         Extract company name and title for each job listed on the Elemental webpage
