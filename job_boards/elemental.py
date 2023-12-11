@@ -26,7 +26,7 @@ class Elemental(JobBoard):
     def website(self, value):
         raise ValueError('Cannot change website of the JobBoard')
 
-    def extract_job_property(self, job: BeautifulSoup, attr: str) -> str:
+    def get_job_property(self, job: BeautifulSoup, attr: str) -> str:
         """
         Uses BeautifulSoup library to extract each relevant property for a job. Different flows 
         are necessary for different properties
@@ -47,13 +47,13 @@ class Elemental(JobBoard):
         else:
             try:
                 property_value = job.find(
-                    itemprop=attr).contents[0].replace('\n', '').strip()  # type: ignore
+                    itemprop=attr).contents[0]  # type: ignore
             except TypeError:
                 property_value = None
 
         return property_value  # type: ignore
 
-    def get_jobs(self, response: BeautifulSoup) -> list[dict]:
+    def extract_jobs(self, response: BeautifulSoup) -> list[dict]:
         """
         Extract company name and title for each job listed on the Elemental webpage
 
@@ -73,9 +73,9 @@ class Elemental(JobBoard):
 
         for job in jobs:
             job_info = {
-                'company': self.extract_job_property(job, 'name'),
-                'location': self.extract_job_property(job, 'address'),
-                'position': self.extract_job_property(job, 'title')
+                'company': self.get_job_property(job, 'name'),
+                'location': self.get_job_property(job, 'address'),
+                'position': self.get_job_property(job, 'title')
             }
 
             database.append(job_info)

@@ -42,7 +42,7 @@ class JobBoard(ABC):
     # Abstract Method Definitions
 
     @abstractmethod
-    def get_jobs(self) -> list[dict]:
+    def extract_jobs(self) -> list[dict]:
         """Returns jobs defined in a certain structure"""
 
     # Concrete Method Definitions
