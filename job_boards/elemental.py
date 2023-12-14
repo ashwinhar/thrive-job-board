@@ -1,31 +1,47 @@
 """Instance of Job Board class for Elemental Excelerator"""
-
+from typing import List
 from bs4 import BeautifulSoup
 from airflow.decorators import task
 from .job_board import JobBoard
+from .job import Job
 
 
 class Elemental(JobBoard):
     """Implementation of class Elemental"""
 
     def __init__(self):
-        pass
+        self._name = 'Elemental'
+        self._website = 'https://jobs.elementalexcelerator.com/jobs'
+        self._job_list = [Job()]
 
     @property
     def name(self) -> str:
-        return 'Elemental'
+        return self._name
 
     @name.setter
-    def name(self, value):
+    def name(self, value) -> None:
         raise ValueError("Cannot change name of the JobBoard")
 
     @property
     def website(self) -> str:
-        return 'https://jobs.elementalexcelerator.com/jobs'
+        return self._website
 
     @website.setter
-    def website(self, value):
+    def website(self, value) -> None:
         raise ValueError('Cannot change website of the JobBoard')
+
+    @property
+    def job_list(self) -> List[Job]:
+        return self._job_list
+
+    @job_list.setter
+    def job_list(self, value) -> None:
+        if not isinstance(value, List):
+            raise TypeError("Value passed must be of type List")
+        if not all(isinstance(item, Job) for item in value):
+            raise TypeError("All elements of list must be of type Job")
+
+        self._job_list = value
 
     def get_job_property(self, job: BeautifulSoup, attr: str) -> str:
         """
@@ -55,7 +71,7 @@ class Elemental(JobBoard):
         return property_value  # type: ignore
 
     @task
-    def extract_jobs(self, response: BeautifulSoup) -> list[dict]:
+    def extract_jobs(self, response: BeautifulSoup) -> List[Job]:
         """
         Extract company name and title for each job listed on the Elemental webpage
 
@@ -74,12 +90,12 @@ class Elemental(JobBoard):
         database = []
 
         for job in jobs:
-            job_info = {
-                'company': self.get_job_property(job, 'name'),
-                'location': self.get_job_property(job, 'address'),
-                'position': self.get_job_property(job, 'title')
-            }
+            new_job = Job(
+                company=self.get_job_property(job, 'name'),
+                position=self.get_job_property(job, 'title'),
+                location=self.get_job_property(job, 'address')
+            )
 
-            database.append(job_info)
+            database.append(new_job)
 
         return database

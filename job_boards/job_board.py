@@ -1,10 +1,14 @@
 """This module implements the abstract class JobBoard"""
 from abc import ABC, abstractmethod
 from datetime import datetime
+from typing import List
 
 import os
 import requests
 from bs4 import BeautifulSoup
+from airflow.decorators import task
+
+from .job import Job
 
 
 class JobBoard(ABC):
@@ -40,6 +44,14 @@ class JobBoard(ABC):
         """
 
     # Abstract Method Definitions
+
+    @property
+    @abstractmethod
+    def job_list(self) -> List[Job]:
+        """
+        Abstract property for list of Job instances extracted from the target
+        website, or target HTML extract
+        """
 
     @abstractmethod
     def extract_jobs(self) -> list[dict]:
@@ -91,3 +103,12 @@ class JobBoard(ABC):
             soup = BeautifulSoup(wp, 'html.parser')
 
         return soup
+
+    @task
+    def clean_job_list(self) -> None:
+        """
+        Cleans each Job in self.job_list based on a default or overriden procedure
+        """
+
+        for job in self.job_list:
+            job.clean_strings()
