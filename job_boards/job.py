@@ -34,8 +34,8 @@ class Job():
         """
         Set self.company
         """
-        if not isinstance(company, str):
-            raise TypeError("Company must be a string")
+        if not isinstance(company, str) and company is not None:
+            raise TypeError("Company must be a string or None")
         self._company = company
 
     @property
@@ -50,8 +50,8 @@ class Job():
         """
         Set self.position
         """
-        if not isinstance(position, str):
-            raise TypeError("Position must be a string")
+        if not isinstance(position, str) and position is not None:
+            raise TypeError("Position must be a string or None")
         self._position = position
 
     @property
@@ -66,8 +66,8 @@ class Job():
         """
         Set self.location
         """
-        if not isinstance(location, str):
-            raise TypeError("Position must be a string")
+        if not isinstance(location, str) and location is not None:
+            raise TypeError("Location must be a string or None")
         self._location = location
 
     ### Functions ###
