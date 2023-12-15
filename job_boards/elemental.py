@@ -1,7 +1,6 @@
 """Instance of Job Board class for Elemental Excelerator"""
 from typing import List
 from bs4 import BeautifulSoup
-from airflow.decorators import task
 from .job_board import JobBoard
 from .job import Job
 
@@ -12,7 +11,6 @@ class Elemental(JobBoard):
     def __init__(self):
         self._name = 'Elemental'
         self._website = 'https://jobs.elementalexcelerator.com/jobs'
-        self._job_list = [Job()]
 
     @property
     def name(self) -> str:
@@ -29,19 +27,6 @@ class Elemental(JobBoard):
     @website.setter
     def website(self, value) -> None:
         raise ValueError('Cannot change website of the JobBoard')
-
-    @property
-    def job_list(self) -> List[Job]:
-        return self._job_list
-
-    @job_list.setter
-    def job_list(self, value) -> None:
-        if not isinstance(value, List):
-            raise TypeError("Value passed must be of type List")
-        if not all(isinstance(item, Job) for item in value):
-            raise TypeError("All elements of list must be of type Job")
-
-        self._job_list = value
 
     def get_job_property(self, job: BeautifulSoup, attr: str) -> str:
         """
@@ -70,7 +55,6 @@ class Elemental(JobBoard):
 
         return property_value  # type: ignore
 
-    @task
     def extract_jobs(self, response: BeautifulSoup) -> List[Job]:
         """
         Extract company name and title for each job listed on the Elemental webpage
@@ -87,7 +71,7 @@ class Elemental(JobBoard):
         jobs = response.find_all(
             'div', attrs={"class", "sc-beqWaB gupdsY job-card"})
 
-        database = []
+        job_list = []
 
         for job in jobs:
             new_job = Job(
@@ -96,6 +80,6 @@ class Elemental(JobBoard):
                 location=self.get_job_property(job, 'address')
             )
 
-            database.append(new_job)
+            job_list.append(new_job)
 
-        return database
+        return job_list

@@ -16,3 +16,4 @@
 /airflow.cfg
 /webserver_config.py
 dags/__pycache__/example_dag.cpython-311.pyc
+airflow-webserver.pid
