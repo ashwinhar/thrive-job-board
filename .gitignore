@@ -5,6 +5,8 @@
 /.vscode/
 /__pycache__/
 /logs/
+/thrive-job-board/
+/sandbox/
 
 ### File Types ###
 *.html
@@ -13,7 +15,9 @@
 
 ### Specific Files ###
 /airflow.db
-/airflow.cfg
 /webserver_config.py
 dags/__pycache__/example_dag.cpython-311.pyc
 airflow-webserver.pid
+logfile
+psql-help.txt
+
