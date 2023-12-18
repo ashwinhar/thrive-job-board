@@ -7,6 +7,10 @@ from job_boards.job import Job
 from job_boards.job_board import JobBoard
 from job_boards.elemental import Elemental
 
+DBNAME = "thrive"
+USER = "admin"
+PASSWORD = "admin"
+
 
 @task()
 def extract() -> List[Dict]:
@@ -48,8 +52,16 @@ def load(job_list: List[Dict]):
     """
     In v0, simply prints all jobs to the command line
     """
-    new_job_list = [Job.load_from_dict(job) for job in job_list]
-    print(new_job_list)
+    Job.publish_to_database(DBNAME, USER, PASSWORD, job_list)
+
+
+@task()
+def get_current_table_state():
+    """
+    Prints current table state to log file in /my_logs/
+    """
+
+    Job.get_current_table_state(DBNAME, USER, PASSWORD)
 
 
 @dag(
@@ -70,6 +82,7 @@ def elemental_etl_basic():
     t_job_list = transform(e_job_list)
     print(t_job_list)
     load(t_job_list)
+    get_current_table_state()
 
 
 elemental_etl_basic()

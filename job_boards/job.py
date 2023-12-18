@@ -1,7 +1,10 @@
 """Defines class Job"""
 from __future__ import annotations
 import inspect
-from typing import Dict
+from typing import List, Dict
+from datetime import datetime
+import os
+import psycopg2
 
 
 class Job():
@@ -112,3 +115,55 @@ class Job():
             position=dict_repr.get('_position'),
             location=dict_repr.get('_location')
         )
+
+    @staticmethod
+    def publish_to_database(dbname: str, user: str, password: str, jobs: List[dict]) -> None:
+        """
+        Publish one or several jobs to PostgreSQL database
+
+        At the moment, this method does not include error checking of any kind, and does not look
+        for duplicate records. 
+
+        Parameters:
+        dbname (str): Database name for PostgreSQL database connection via psycopg2
+        user (str): Username for PostgreSQL database connection via psycopg2
+        password (str): Password for PostgreSQL database connection via psycopg2
+        jobs: Jobs to be published
+        """
+        with psycopg2.connect(f"dbname={dbname} user={user} password={password}") as conn:
+            with conn.cursor() as cur:
+                for job in jobs:
+                    cur.execute(f"INSERT INTO jobs (Company, Position, Location) VALUES \
+                                ('{job.get('_company')}', '{job.get('_position')}', \
+                                    '{job.get('_location')}')")
+            conn.commit()
+
+    @staticmethod
+    def get_current_table_state(dbname: str, user: str, password: str) -> None:
+        """
+        Write current table state to timestamped log file
+
+        Parameters:
+        dbname (str): Database name for PostgreSQL database connection via psycopg2
+        user (str): Username for PostgreSQL database connection via psycopg2
+        password (str): Password for PostgreSQL database connection via psycopg2
+        """
+
+        target_dir = "./my_logs/"
+
+        # Each job board should have its own directory within the "data" directory
+        if not os.path.exists(target_dir):
+            os.mkdir(target_dir)
+
+        conn = psycopg2.connect(
+            f"dbname={dbname} user={user} password={password}")
+        with conn.cursor() as cur:
+            cur.execute("select * from jobs")
+            rows = cur.fetchall()
+
+            with open(f'{target_dir}jobs_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt',
+                      'w', encoding='utf8') as file:
+
+                for row in rows:
+                    file.write(str(row))
+                    file.write('\n')
