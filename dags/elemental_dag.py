@@ -3,13 +3,10 @@ from typing import List, Dict
 import pendulum
 from airflow.decorators import dag, task
 
+import job_boards.transaction as t
 from job_boards.job import Job
 from job_boards.job_board import JobBoard
 from job_boards.elemental import Elemental
-
-DBNAME = "thrive"
-USER = "admin"
-PASSWORD = "admin"
 
 
 @task()
@@ -52,16 +49,16 @@ def load(job_list: List[Dict]):
     """
     In v0, simply prints all jobs to the command line
     """
-    Job.publish_to_database(DBNAME, USER, PASSWORD, job_list)
+    for job in job_list:
+        t.publish_to_database("jobs", job)
 
 
 @task()
-def get_current_table_state():
+def log_table_state(table: str):
     """
     Prints current table state to log file in /my_logs/
     """
-
-    Job.get_current_table_state(DBNAME, USER, PASSWORD)
+    t.get_current_table_state(table)
 
 
 @dag(
@@ -82,7 +79,7 @@ def elemental_etl_basic():
     t_job_list = transform(e_job_list)
     print(t_job_list)
     load(t_job_list)
-    get_current_table_state()
+    log_table_state("jobs")
 
 
 elemental_etl_basic()

@@ -79,7 +79,7 @@ class Elemental(JobBoard):
                 position=self.get_job_property(job, 'title'),
                 location=self.get_job_property(job, 'address')
             )
-
+            new_job.set_id()
             job_list.append(new_job)
 
         return job_list

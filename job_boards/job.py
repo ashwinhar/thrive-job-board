@@ -2,6 +2,7 @@
 from __future__ import annotations
 import inspect
 import hashlib
+import warnings
 from typing import Dict
 
 
@@ -30,6 +31,20 @@ class Job():
         returns self._id
         """
         return self._id
+
+    @id.setter
+    def id(self, identity) -> None:
+        """
+        Set self._id
+        """
+        if not isinstance(identity, str) and identity is not None:
+            raise TypeError("Company must be a string or None")
+        else:
+            warnings.warn('Ids should seldom be set in this way, and should only be set \n \
+                          using this method if the user is absolutely certain of the id. \
+                          The id takes the form of the first 8 chars of a hashing function.\
+                          See the set_id() method for more details')
+            self._id = identity
 
     @property
     def company(self):
@@ -132,8 +147,11 @@ class Job():
         Returns:
         Job: Job using the values of the dict_repr parameter as initializaiton
         """
-        return Job(
+        job = Job(
             company=dict_repr.get('_company'),
             position=dict_repr.get('_position'),
             location=dict_repr.get('_location')
         )
+        job.id = dict_repr.get('_id')
+
+        return job

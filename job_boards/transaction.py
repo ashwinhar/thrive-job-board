@@ -80,7 +80,7 @@ def remove_from_database(table: str, identity: str) -> None:
         conn.commit()
 
 
-def get_current_table_state(table: str) -> None:
+def get_current_table_state(table: str, log=False):
     """
     Write current table state to timestamped log file
 
@@ -88,23 +88,26 @@ def get_current_table_state(table: str) -> None:
         dbname (str): Database name for PostgreSQL database connection via psycopg2
         user (str): Username for PostgreSQL database connection via psycopg2
         password (str): Password for PostgreSQL database connection via psycopg2
+    Returns
+        records (list): List of current records in target table
     """
 
     target_dir = "./my_logs/"
+    records = None
 
-    # Each job board should have its own directory within the "data" directory
-    if not os.path.exists(target_dir):
-        os.mkdir(target_dir)
+    with psycopg2.connect(f"dbname={DBNAME} user={USER} password={PASSWORD}") as conn:
+        with conn.cursor() as cur:
+            cur.execute("select * from jobs")
+            records = cur.fetchall()
 
-    conn = psycopg2.connect(
-        f"dbname={DBNAME} user={USER} password={PASSWORD}")
-    with conn.cursor() as cur:
-        cur.execute("select * from jobs")
-        rows = cur.fetchall()
-
+    if log:
         with open(f'{target_dir}{table}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.txt',
                   'w', encoding='utf8') as file:
-
-            for row in rows:
-                file.write(str(row))
+            # Each job board should have its own directory within the "data" directory
+            if not os.path.exists(target_dir):
+                os.mkdir(target_dir)
+            for record in records:
+                file.write(str(record))
                 file.write('\n')
+
+    return records
