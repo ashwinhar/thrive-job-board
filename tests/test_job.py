@@ -1,12 +1,12 @@
 """Tests files in the /job_boards/ directory"""
 import pytest
-from job_boards.elemental import Elemental
 from job_boards.job import Job
-from job_boards.job_board import JobBoard
 
 ### Testing Job ###
 
 job = Job(company="Company", position="Position", location="Location")
+job.set_id()
+job_id = job.id
 
 
 def test_init():
@@ -16,15 +16,14 @@ def test_init():
 
 def test_to_string():
     """Tests magic __str__ method"""
-
     assert str(
-        job) == "Job(company: Company, position: Position, location: Location)"
+        job) == f"Job(id: {job_id}, company: Company, position: Position, location: Location)"
 
 
 def test_company_setter():
     """Tests setting company attribute"""
     with pytest.raises(TypeError) as message:
-        job.company = 3
+        job.company = 3  # type: ignore
 
     assert "must be a string" in str(message)
 

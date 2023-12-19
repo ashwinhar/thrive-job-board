@@ -5,6 +5,7 @@
 /.vscode/
 /__pycache__/
 /logs/
+/my_logs/
 /thrive-job-board/
 /sandbox/
 
