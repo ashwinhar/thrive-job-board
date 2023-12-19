@@ -88,9 +88,5 @@ def test_no_duplication():
             assert cur.fetchall()[0][0] == 1
 
 
-def test_record_not_exists():
-    pass
-
-
 def test_record_removed():
     pass

@@ -72,6 +72,3 @@ def test_load_from_dict():
 
     assert new_job.company == "Company" and new_job.position == "Position" \
         and new_job.location == "Location"
-
-
-### Testing JobBoard ###

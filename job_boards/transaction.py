@@ -1,7 +1,7 @@
 """Defines PostgreSQL database interaction methods"""
 
 from datetime import datetime
-from typing import List, Dict
+from typing import List
 import os
 import psycopg2
 
