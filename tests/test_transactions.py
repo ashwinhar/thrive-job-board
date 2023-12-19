@@ -1,9 +1,13 @@
 """
 Tests methods from transaction.py. Specifically tests methods against the table "test". 
 
-The following record is *guaranteed* to be in that table and is verified by the first test. If that
-test fails, results from the other tests are unreliable.
+The following record is *guaranteed* to be in that table and is verified by the first test:
 
+    id    |  company  |  position  |  location  
+----------+-----------+------------+------------
+ 123ABC   | t_Company | t_Position | t_Location
+
+If that test fails, results from the other tests are unreliable.
 """
 
 import pytest
@@ -71,7 +75,17 @@ def test_no_duplication():
     """
     Tests that if a record already exists in the table, no duplicate is made even if requested
     """
-    pass
+    d_job = Job(company="t_Company", position="t_Position",
+                location="l_Location")
+    d_job.set_id()
+
+    t.publish_to_database('test', d_job.to_dict())
+    t.update_job_list('test', [d_job.to_dict()])
+
+    with psycopg2.connect(f"dbname={DBNAME} user={USER} password={PASSWORD}") as conn:
+        with conn.cursor() as cur:
+            cur.execute(f"SELECT COUNT(*) FROM test WHERE id='{d_job.id}'")
+            assert cur.fetchall()[0][0] == 1
 
 
 def test_record_not_exists():

@@ -26,25 +26,26 @@ def check_exists(table: str, identity) -> bool:
             cur.execute(f"SELECT COUNT(*) FROM {table} WHERE id='{identity}'")
             return cur.fetchall()[0][0] > 0
 
+
 def update_job_list(table: str, job_list: List[dict]):
     """
     Update table with new list of jobs
 
-    This is a driver function that handles the logic of updating a job list. The following cases are captured: 
+    This is a driver function that handles the logic of updating a job list. The following cases
+    are captured: 
         1. A record already exists in the table -> Table is unchanged [in dev]
         2. A record doesn't exist in the table -> Add record to table [in dev]
-        3. A record has been removed from original job board -> Record is removed from table [in dev]
+        3. A record has been removed from orig. job board -> Record is removed from table [in dev]
 
     Parameters:
         table (str): Target table to update
         job_list (List[dict]): List of jobs in dict representation 
     """
-    with psycopg2.connect(f"dbname={DBNAME} user={USER} password={PASSWORD}") as conn:
-        with conn.cursor() as cur:
-            for job in job_list:
-                if check_exists(table, job.get('_id')):
 
-    pass
+    for job in job_list:
+        if not check_exists(table, job.get('_id')):
+            publish_to_database(table, job)
+
 
 def publish_to_database(table: str, job: dict) -> None:
     """
