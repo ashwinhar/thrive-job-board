@@ -10,15 +10,21 @@ The following record is *guaranteed* to be in that table and is verified by the 
 If that test fails, results from the other tests are unreliable.
 """
 
-from venv import create
 import psycopg2
 import job_boards.transaction as t
 from job_boards.job import Job
 
+# Database connection constants
 DBNAME = "thrive"
 USER = "admin"
 PASSWORD = "admin"
 TABLE = "temp_test"
+
+# Temp record constants
+T_REC_ID = '123ABC'
+T_REC_COMPANY = 't_Company'
+T_REC_POSITION = 't_Position'
+T_REC_LOCATION = 't_Location'
 
 
 def create_temp_table():
