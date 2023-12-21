@@ -97,7 +97,7 @@ def get_current_table_state(table: str, log=False):
 
     with psycopg2.connect(f"dbname={DBNAME} user={USER} password={PASSWORD}") as conn:
         with conn.cursor() as cur:
-            cur.execute("select * from jobs")
+            cur.execute(f"select id, company, position, location from {table}")
             records = cur.fetchall()
 
     if log:
