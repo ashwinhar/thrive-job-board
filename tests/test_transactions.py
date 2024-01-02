@@ -98,10 +98,35 @@ def test_no_duplication():
     h.destroy_temp_table()
 
 
-def test_record_removed():
+def test_handler():
+    """
+    Tests if instructions are created correctly to update a table state
+    """
     h.create_temp_table(default=False)
     h.create_temp_table_data()
-    records = t.get_current_table_state(h.TABLE)
+    samp_table_state = t.get_current_table_state(h.TABLE)
+
+    samp_web_extract = [
+        {'_id': f'{i}',
+         '_company': f'{i}_company',
+         '_position': f'{i}_position',
+         '_location': f'{i}_location'
+         } for i in range(12) if i % 2 == 0]
+
+    samp_web_extract.append({'_id': '3', '_company': '3_company', '_position': '3_position',
+                             '_location': '3_location'
+                             })
+
+    instructions = t.handler(samp_table_state, samp_web_extract)
+
     h.destroy_temp_table()
 
-    assert True
+    check_instructions = [
+        {'_id': '1', 'instruction': 'R'},
+        {'_id': '5', 'instruction': 'R'},
+        {'_id': '7', 'instruction': 'R'},
+        {'_id': '9', 'instruction': 'R'},
+        {'_id': '10', 'instruction': 'C'},
+    ]
+
+    assert instructions == check_instructions

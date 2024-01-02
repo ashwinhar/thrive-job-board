@@ -51,8 +51,8 @@ def publish_to_database(table: str, job: dict) -> None:
     """
     Publish a single job to PostgreSQL database
 
-    At the moment, this method does not include error checking of any kind, and does not look
-    for duplicate records. 
+    At the moment, this method does not include error checking of any kind, and does not look for 
+    duplicate records. 
 
     Parameters:
         table (str): Target table for publishing
@@ -80,7 +80,7 @@ def remove_from_database(table: str, identity: str) -> None:
         conn.commit()
 
 
-def get_current_table_state(table: str, log=False):
+def get_current_table_state(table: str, log=False) -> List[dict]:
     """
     Write current table state to timestamped log file
 
@@ -90,6 +90,7 @@ def get_current_table_state(table: str, log=False):
         password (str): Password for PostgreSQL database connection via psycopg2
     Returns
         records (list): List of current records in target table
+        TODO untested 
     """
 
     target_dir = "./my_logs/"
@@ -110,4 +111,49 @@ def get_current_table_state(table: str, log=False):
                 file.write(str(record))
                 file.write('\n')
 
-    return records
+    return [{
+        '_id': record[0],
+        '_company': record[1],
+        '_position': record[2],
+        '_location': record[3]
+    } for record in records
+    ]
+
+
+def handler_helper(records: List[dict]) -> dict:
+    """
+    Convert list of dicts into dict of dicts
+    """
+    edited = {}
+    for record in records:
+        edited[record.get('_id')] = {
+            '_company': record.get('_company'),
+            '_position': record.get('_position'),
+            '_location': record.get('_location')
+        }
+    return edited
+
+
+def handler(table_state: List[dict], web_extract: List[dict]) -> List:
+    """
+    Creates instruction set for changing table state
+
+    Takes in the table_state and web_extract, to update the state in the database. First, it looks 
+    for cases where a job id exists in the table_state but does NOT exist in the web_extract. In 
+    these cases, the record should be deleted from the table. 
+    """
+    instructions = []
+    web_extract_dict = handler_helper(web_extract)
+
+    for entry in table_state:
+        # A job exists in the table but it no longer appears on the website
+        if entry.get('_id') not in web_extract_dict:
+            instructions.append({'_id': entry.get('_id'), 'instruction': 'R'})
+        else:
+            del web_extract_dict[entry.get('_id')]
+
+    # Create records that do not currently exist
+    for key, value in web_extract_dict.items():
+        instructions.append({'_id': key, 'instruction': 'C'})
+
+    return instructions
