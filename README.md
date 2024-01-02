@@ -1,1 +1,1 @@
-# thrive-job-board
+# Thrive Job Board
