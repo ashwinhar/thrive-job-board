@@ -127,6 +127,7 @@ def handler_helper(records: List[dict]) -> dict:
     edited = {}
     for record in records:
         edited[record.get('_id')] = {
+            '_id': record.get('_id'),
             '_company': record.get('_company'),
             '_position': record.get('_position'),
             '_location': record.get('_location')
@@ -154,6 +155,6 @@ def handler(table_state: List[dict], web_extract: List[dict]) -> List:
 
     # Create records that do not currently exist
     for key, value in web_extract_dict.items():
-        instructions.append({'_id': key, 'instruction': 'C'})
+        instructions.append({'_id': key, 'instruction': 'P'})
 
     return instructions

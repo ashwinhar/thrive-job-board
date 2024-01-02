@@ -126,7 +126,7 @@ def test_handler():
         {'_id': '5', 'instruction': 'R'},
         {'_id': '7', 'instruction': 'R'},
         {'_id': '9', 'instruction': 'R'},
-        {'_id': '10', 'instruction': 'C'},
+        {'_id': '10', 'instruction': 'P'},
     ]
 
     assert instructions == check_instructions

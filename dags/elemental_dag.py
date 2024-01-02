@@ -45,20 +45,49 @@ def transform(job_list: List[Dict]):
 
 
 @task()
-def load(job_list: List[Dict]):
+def load(job_list: List[Dict], table_state):
     """
     In v0, simply prints all jobs to the command line
     """
-    for job in job_list:
-        t.publish_to_database("jobs", job)
+
+    instructions = t.handler(table_state, job_list)
+    job_list_dict = t.handler_helper(job_list)
+
+    for instruction in instructions:
+        if instruction.get('instruction') == 'R':
+            remove_record(instruction.get('_id'))
+        elif instruction.get('instruction') == 'P':
+            publish_record(job_list_dict.get(instruction.get('_id')))
 
 
 @task()
-def log_table_state(table: str):
+def remove_record(identity: str):
+    """
+    Remove record with id=identity from database
+
+    Parameters:
+        identity (str): Identity of record to remove
+    """
+    t.remove_from_database('jobs', identity)
+
+
+@task()
+def publish_record(job: dict):
+    """
+    Publish new record to database
+
+    Parameters: 
+        job (dict): Job in a dict representation
+    """
+    t.publish_to_database('jobs', job)
+
+
+@task()
+def get_table_state(table: str):
     """
     Prints current table state to log file in /my_logs/
     """
-    t.get_current_table_state(table)
+    return t.get_current_table_state(table)
 
 
 @dag(
@@ -77,9 +106,8 @@ def elemental_etl_basic():
     e_job_list = extract()
 
     t_job_list = transform(e_job_list)
-    print(t_job_list)
-    load(t_job_list)
-    log_table_state("jobs")
+    table_state = get_table_state('jobs')
+    load(t_job_list, table_state)
 
 
 elemental_etl_basic()
