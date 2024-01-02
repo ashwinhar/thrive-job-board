@@ -1,0 +1,24 @@
+
+### Folders ###
+/.ipynb_checkpoints/*
+/airflow/*
+/.vscode/
+/__pycache__/
+/logs/
+/my_logs/
+/thrive-job-board/
+/sandbox/
+
+### File Types ###
+*.html
+*.ipynb
+*.pyc
+
+### Specific Files ###
+/airflow.db
+/webserver_config.py
+dags/__pycache__/example_dag.cpython-311.pyc
+airflow-webserver.pid
+logfile
+psql-help.txt
+

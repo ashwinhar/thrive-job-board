@@ -1,0 +1,11 @@
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - echo "Running tests..."
+    - pytest
+  only:
+    - main
+    - merge_requests
